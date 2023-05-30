@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>机器人</title>
+    <meta name="viewport" content="width=device-width, 
+        initial-scale=1.0,
+        maximum-scale=1.0, 
+        user-scalable=no">
+    <link rel="stylesheet" href="./themes/default/easyui.css">
+    <link rel="stylesheet" href="./themes/icon.css">
+    <link rel="stylesheet" href="./css/demo.css">
+
+    <script src="./libs/jquery.min.js"></script>
+    <script src="./libs/jquery.easyui.min.js"></script>
+    <script src="./libs/roslib.min.js"></script>
+    <script src="./libs/easeljs.min.js"></script>
+    <script src="./libs/eventemitter2.min.js"></script>
+    <script src="./libs/ros2d.min.js"></script>
+    <script src="./libs/filesaver.js"></script>
+    <script src="./js/jhr_storage.js"></script>
+    <script src="./js/jhr_ros.js"></script>
+    <script src="./js/jhr_ros_work.js"></script>
+    <script src="./js/jhr_ros_tf.js"></script>
+    <script src="./js/jhr_ctrl.js"></script>
+    <script src="./js/jhr_index.js"></script>
+    <script src="./js/jhr_task.js"></script>
+    <link rel="stylesheet" href="./css/index.css">
+</head>
+<body>
+    <div>
+        <div id="w" class="easyui-window" title="机器人" 
+        data-options="footer:'#footer',width:940,height:580,top:0,draggable:false">
+            <div id="tt" style="width:100%;height:100%">
+                <div title="参数设置" style="padding:10px;position:relative;">
+                    <div class="cls_001">
+                        <table>
+                            <tr>
+                                <td colspan="2" style="text-align: center;">
+                                    <span id="map_point_sel"></span>
+                                    <button id="cmdGO" class="cls_btn1">GO</button></td>
+                            </tr>
+
+                            <tr>
+                                <td style="text-align: center;">地图名称</td>
+                                <td><input type="text" id="map_name_create" value="default" class="cls_in1"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="text-align: center;">
+                                    <button id="cmdCreateMap" class="cls_btn1">创建地图</button>
+                                    <button id="cmdSaveMap" class="cls_btn1">保存地图</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;">地图选择</td>
+                                <td style="text-align: center;">
+                                    <select id="mapCombobox" style="width:60%"></select>
+                                    <div id="mapCombobox_sp" style="text-align: center;width: 100%;line-height: 30px;">
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="text-align: center;">
+                                    <button id="cmdGetMapList" class="cls_btn1">地图列表</button>
+                                    <button id="cmdLoadMap" class="cls_btn1">调入地图</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="text-align: center;">
+                                    <button id="cmd_task_start" class="cls_btn1">开始任务</button>
+                                    <button id="cmd_task_stop" class="cls_btn1">停止任务</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="text-align: center;">
+                                    <button id="cmd_task_pause" class="cls_btn1">暂停任务</button>
+                                    <button id="cmd_task_continue" class="cls_btn1">继续任务</button>
+                                </td>
+                            </tr>
+                        </table>
+                        <!--<div id="tf_00">0</div>
+                        <div id="tf_01">1</div>
+                        <div id="tf_02">2</div>
+                        <div id="tf_03">3</div>
+                        <div id="tf_04">4</div>
+                        <div id="tf_05">5</div>
+                        <div id="tf_06">6</div>
+                        <div id="tf_07">7</div>-->
+                    </div>
+                    <div class="cls_002" id="map" style="background-color: rgb(127,127,127);padding: 0px;"> 
+                    </div>
+                </div>
+                <div title="数据记录" style="padding:10px;position:relative;">
+                    <div class="easyui-accordion cls_001" >
+                        <div title="数据查询" data-options="iconCls:'icon-search'" style="overflow:auto;padding:10px;">
+                            <div style="margin-bottom:20px">
+                                <input id="time_start" value="2020-01-01" class="easyui-datetimebox" label="起始时间:" labelPosition="top" style="width:100%;">
+                                <input id="time_end" value="2020-01-01" class="easyui-datetimebox" label="截至时间:" labelPosition="top" style="width:100%;">
+                                <input type="button" value="数据查询" id="btn_search" class="cls_btn1" style="margin-left:50px;margin-top:30px;">
+                            </div>
+                        </div>
+                        <div title="数据记录" id="data_rec" data-options="iconCls:'icon-large-chart'" style="overflow:auto;padding:10px;">
+                        </div>
+                        <div title="数据处理" data-options="iconCls:'icon-large-shapes'" style="overflow:auto;padding:10px;">
+                            <input type="button" value="清空数据" id="btn_data_clear" class="cls_btn1" style="margin-left:50px;margin-top:10px;">
+                            <input type="button" value="导出数据" id="btn_data_import" class="cls_btn1" style="margin-left:50px;margin-top:10px;">
+                           <!--<input type="button" value="添加测试数据" id="btn_data_test" class="cls_btn1" style="margin-left:50px;margin-top:10px;">-->
+                        </div>
+                    </div>
+                    <div class="cls_002" style="overflow:auto;">
+                        <h2>数据记录</h2>
+                        <table id="tb_data_record">
+                            <tr>
+                                <th style="width:60px;">名称</th>
+                                <th style="width:160px;">起始时间</th>
+                                <th style="width:80px;">停止时间</th>
+                                <th style="width:60px;">速度</th>
+                                <th style="width:60px;">是否碰撞</th>
+                                <th style="width:60px;">碰撞距离</th>
+                                <th style="width:60px;">碰撞时间</th>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div title="遥控" style="padding:10px">
+                    <canvas id="myCanvas" width="400" height="400" style="margin-left: 228px;margin-top: 20px;"></canvas>
+                </div>
+	        </div>
+        </div>
+        <div id="footer" style="padding:5px;">
+            <span class="cls_foot_span1" id="status_1"></span>
+            <span class="cls_foot_span1" id="status_2"></span>
+            <span class="cls_foot_span1" id="status_3"></span>
+            <span class="cls_foot_span1" id="status_4"></span>
+            <span class="cls_foot_span1" id="status_5"></span>
+        </div>
+    </div>
+    <script type="text/javascript">
+		$('.easyui-window').window({
+			collapsible: false,
+			minimizable: false,
+			maximizable: false,
+			closable: false
+		}); 
+        $(function(){
+            //选项菜单初始化
+			var p = $('#tt').tabs().tabs('tabs')[2];
+            //组合框初始化
+            $('#mapCombobox').combo({
+				required:true,
+				editable:false
+			});
+			$('#mapCombobox_sp').appendTo($('#mapCombobox').combo('panel'));
+            jhr_index.mapCombobox_sp_click();
+            /*$('#mapCombobox_sp span').click(function(){
+				var v = $(this).text();
+				$('#mapCombobox').combo('setValue', v).combo('setText', v).combo('hidePanel');
+			});*/
+		});
+</script>
+</body>
+</html>

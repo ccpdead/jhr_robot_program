@@ -1,0 +1,8 @@
+prefix=/home/jhr/jhr_ros/install
+
+Name: jhr_type_2023
+Description: Description of jhr_type_2023
+Version: 0.0.0
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib 
+Requires: message_runtime

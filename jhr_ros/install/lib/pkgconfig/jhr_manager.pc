@@ -1,0 +1,8 @@
+prefix=/home/jhr/jhr_ros/install
+
+Name: jhr_manager
+Description: Description of jhr_manager
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
